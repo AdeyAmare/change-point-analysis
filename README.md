@@ -46,6 +46,24 @@ In later tasks, Bayesian change point models will be used to identify structural
 
 ---
 
+## Bayesian Change Point Models: Purpose and Expected Outputs
+
+Bayesian change point models are used to identify points in time where the underlying data-generating process of a time series changes. In the context of Brent oil prices, these models aim to detect structural breaks or regime shifts, such as changes in average price levels, volatility, or overall market dynamics.
+
+The expected outputs of a Bayesian change point analysis include posterior probability distributions over potential change point dates, as well as estimates of model parameters before and after each detected break. These outputs allow probabilistic statements about when a structural shift most likely occurred, how market behavior differed across regimes, and the uncertainty surrounding these estimates.
+
+Rather than producing a single deterministic change date, the Bayesian framework quantifies uncertainty explicitly, which is particularly important in volatile markets where multiple overlapping influences may be present.
+
+## Change Point Analysis: Purpose, Outputs, and Limitations
+
+A change point model is a statistical framework designed to identify points in time at which the underlying data-generating process of a time series changes. In the context of Brent oil prices, this means detecting periods where key parameters such as the mean level, variance, or overall volatility regime shift, indicating a structural break rather than normal short-term price fluctuations.
+
+Change point models are used because oil price dynamics are influenced by discrete shocks—such as geopolitical conflicts, policy interventions, or economic crises—that can alter market behavior in a persistent way. Traditional time series models assume stable parameters over time and therefore struggle to capture these regime shifts. Change point methods explicitly relax this assumption, making them well-suited for analyzing non-stationary financial and commodity price series.
+
+The primary outputs of change point analysis include estimated change point dates and parameter estimates before and after each detected break. In a Bayesian framework, these outputs are expressed as posterior distributions, allowing probabilistic assessment of when a structural change most likely occurred and how the statistical properties of prices differ across regimes. These results support interpretation of how market behavior evolves over time rather than providing exact deterministic break dates.
+
+Despite their usefulness, change point models have important limitations. They identify when statistical changes occur but do not explain why they occur. Multiple overlapping events may contribute to a single detected change, and market reactions may be anticipatory or delayed relative to observable events. Consequently, detected change points should be interpreted as indicators of structural change that require external contextual information, rather than as evidence of direct causal relationships.
+
 ## Expected Outputs of Change Point Modeling
 
 When change point modeling is applied, the main outputs will include probability distributions for possible change point dates, estimates of model parameters for each regime (such as average price levels before and after a change), and uncertainty intervals around these estimates.
