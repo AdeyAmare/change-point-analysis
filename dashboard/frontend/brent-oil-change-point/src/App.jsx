@@ -5,18 +5,32 @@ import {
 } from "recharts";
 import axios from "axios";
 
+/**
+ * Brent Oil Dashboard App
+ * Displays 4-point analysis: Raw Prices, Change Points, Geopolitical Events, Integrated Analysis.
+ */
 function App() {
   const [prices, setPrices] = useState([]);
   const [changePoints, setChangePoints] = useState([]);
   const [events, setEvents] = useState([]);
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
 
+  // -------------------------------
+  // API Base URL
+  // -------------------------------
+  // Use environment variable for API base, fallback to current host
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:5000`;
+
+  /**
+   * Fetch prices, change points, and events from backend API.
+   * Applies optional date filtering for prices and events.
+   */
   const fetchData = async () => {
     try {
       const [pRes, cpRes, eRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/prices", { params: dateRange }),
-        axios.get("http://localhost:5000/api/change_point"),
-        axios.get("http://localhost:5000/api/events", { params: dateRange })
+        axios.get(`${API_BASE_URL}/api/prices`, { params: dateRange }),
+        axios.get(`${API_BASE_URL}/api/change_point`),
+        axios.get(`${API_BASE_URL}/api/events`, { params: dateRange })
       ]);
 
       setPrices(pRes.data.map(p => ({ ...p, Date: new Date(p.Date).getTime() })));
@@ -24,13 +38,18 @@ function App() {
       setEvents(eRes.data.map(e => ({ ...e, event_date: new Date(e.event_date).getTime() })));
     } catch (err) {
       console.error("Fetch Error:", err);
+      alert("Error fetching data. Check console for details.");
     }
   };
 
+  /**
+   * Format timestamp to locale date string for chart axes and tooltips.
+   * @param {number} ts - Timestamp in milliseconds
+   * @returns {string} Formatted date
+   */
   const formatDate = (ts) => ts ? new Date(ts).toLocaleDateString() : "";
 
   return (
-    // Changed padding to 15px and width to 100% to maximize space
     <div style={{
       padding: "15px",
       backgroundColor: "#0f172a",
@@ -39,21 +58,41 @@ function App() {
       width: "100vw",
       boxSizing: "border-box"
     }}>
-      {/* Reduced bottom margin on header */}
+      {/* Dashboard Header */}
       <h2 style={{ textAlign: 'center', color: '#38bdf8', margin: "0 0 15px 0" }}>
         Brent Oil: 4-Point Analysis Dashboard
       </h2>
 
-      {/* Reduced bottom margin on controls */}
+      {/* Controls for date filtering */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '15px' }}>
-        <input type="date" name="start" value={dateRange.start} onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })} />
-        <input type="date" name="end" value={dateRange.end} onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })} />
-        <button onClick={fetchData} style={{ padding: '5px 20px', backgroundColor: '#38bdf8', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
+        <input
+          type="date"
+          name="start"
+          value={dateRange.start}
+          onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+        />
+        <input
+          type="date"
+          name="end"
+          value={dateRange.end}
+          onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+        />
+        <button
+          onClick={fetchData}
+          style={{
+            padding: '5px 20px',
+            backgroundColor: '#38bdf8',
+            border: 'none',
+            borderRadius: '4px',
+            fontWeight: 'bold',
+            cursor: 'pointer'
+          }}
+        >
           Run Analysis
         </button>
       </div>
 
-      {/* Grid container spanning full width with reduced gap */}
+      {/* 2x2 Grid for Plots */}
       <div style={{
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
@@ -61,7 +100,7 @@ function App() {
         width: "100%"
       }}>
 
-        {/* PLOT 1 */}
+        {/* Plot 1: Raw Price Trend */}
         <div style={{ background: '#1e293b', padding: '10px', borderRadius: '8px' }}>
           <h4 style={{ margin: "0 0 10px 0" }}>1. Raw Price Trend</h4>
           <ResponsiveContainer width="100%" height={220}>
@@ -75,7 +114,7 @@ function App() {
           </ResponsiveContainer>
         </div>
 
-        {/* PLOT 2 */}
+        {/* Plot 2: Statistical Change Points */}
         <div style={{ background: '#1e293b', padding: '10px', borderRadius: '8px' }}>
           <h4 style={{ margin: "0 0 10px 0" }}>2. Statistical Change Points</h4>
           <ResponsiveContainer width="100%" height={220}>
@@ -89,7 +128,7 @@ function App() {
           </ResponsiveContainer>
         </div>
 
-        {/* PLOT 3 */}
+        {/* Plot 3: Geopolitical Events */}
         <div style={{ background: '#1e293b', padding: '10px', borderRadius: '8px' }}>
           <h4 style={{ margin: "0 0 10px 0" }}>3. Geopolitical Events</h4>
           <ResponsiveContainer width="100%" height={220}>
@@ -105,7 +144,7 @@ function App() {
           </ResponsiveContainer>
         </div>
 
-        {/* PLOT 4 */}
+        {/* Plot 4: Integrated Analysis */}
         <div style={{ background: '#1e293b', padding: '10px', borderRadius: '8px', border: '1px solid #38bdf8' }}>
           <h4 style={{ color: '#38bdf8', margin: "0 0 10px 0" }}>4. Integrated Analysis (Combined)</h4>
           <ResponsiveContainer width="100%" height={220}>
