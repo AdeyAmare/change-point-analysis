@@ -184,6 +184,8 @@ class BrentOilAnalysisFoundation:
             {"event_date": "2020-04-20", "event_name": "Negative Oil Prices", "description": "WTI prices below zero."},
             {"event_date": "2022-02-24", "event_name": "Russian Invasion of Ukraine", "description": "Sanctions and supply risks."},
             {"event_date": "2023-04-02", "event_name": "OPEC+ Surprise Production Cuts", "description": "Unexpected cuts trigger price reaction."},
+            {"event_date": "2004-11-16", "event_name": "Iraq Oil-for-Food Program Investigation", "description": "U.S. Senate investigation reveals irregularities in Iraqi oil sales, increasing supply uncertainty"}
+
         ]
         events_df = pd.DataFrame(events)
         events_df["event_date"] = pd.to_datetime(events_df["event_date"])

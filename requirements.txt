@@ -8,3 +8,4 @@ pytest
 pymc
 arviz
 python-dotenv
+flask
