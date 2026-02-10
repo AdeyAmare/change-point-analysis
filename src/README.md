@@ -1,72 +1,122 @@
 # `src`
 
-This folder contains the main source code for analyzing Brent oil price data. The code provides tools for **data loading, time series diagnostics, stationarity checks, and event compilation**, serving as a foundation for further analysis or modeling.
+This folder contains the main source code for **analyzing Brent oil price data**, including traditional time series diagnostics and Bayesian change point analysis. These tools provide a foundation for exploratory data analysis, statistical modeling, and economic interpretation.
 
 ---
 
-## Files
+## Modules
 
 ### `initial_analysis.py`
 
-Contains the class:
+Provides the class **`BrentOilAnalysisFoundation`**, responsible for:
 
-**`BrentOilAnalysisFoundation`**
-
-Responsibilities:
-
-* Load and validate Brent oil price data from a CSV file.
-* Compute basic time series diagnostics:
+* Loading and validating Brent oil price data from CSV.
+* Computing basic time series diagnostics:
 
   * Log prices
   * Price differences
   * Log returns
   * Rolling volatility
-* Check stationarity of the series using the Augmented Dickey-Fuller (ADF) test, with visualization.
-* Compile a structured dataset of major geopolitical, OPEC, and macroeconomic events affecting oil prices.
-* Save events data to a CSV for downstream use.
-* Provide a pipeline to execute all of the above steps sequentially.
+* Checking stationarity using the **Augmented Dickey-Fuller (ADF) test**, with visualizations.
+* Compiling a structured dataset of major **geopolitical, OPEC, and macroeconomic events** affecting oil prices.
+* Saving events data for downstream use.
+* Executing a sequential pipeline for all the above steps.
 
----
-
-## Usage
+**Usage Example:**
 
 ```python
 from pathlib import Path
 from initial_analysis import BrentOilAnalysisFoundation
 
-# Initialize class
 foundation = BrentOilAnalysisFoundation(
     brent_data_path=Path("../data/raw/BrentOilPrices.csv"),
     events_output_path=Path("../data/processed/geopolitical_events.csv")
 )
 
-# Load data
+# Run the full pipeline
 foundation.run_task_1_pipeline()
 ```
 
----
+**Features:**
 
-## Features
+* Logging of key steps and statistics.
+* Plots: price over time, rolling volatility, and stationarity checks.
+* Error handling for missing files or columns.
 
-* **Logging**: Key steps and statistics are logged for reproducibility.
-* **Plots**:
-
-  * Brent oil price over time
-  * Rolling volatility
-  * Stationarity check with rolling mean & standard deviation
-* **Error handling**:
-
-  * Raises `FileNotFoundError` if the data file is missing.
-  * Raises `ValueError` if required columns (`Date`, `Price`) are missing.
-  * Raises `RuntimeError` if operations are attempted before data is loaded.
-
----
-
-## Assumptions & Limitations
+**Assumptions & Limitations:**
 
 * Input CSV must contain `Date` and `Price` columns.
-* Time series diagnostics assume daily frequency but can handle irregular dates.
-* Stationarity check uses a rolling window of 30 days.
-* Event dataset is manually compiled from historical records; dates are approximate.
+* Rolling window of 30 days is used for stationarity checks.
+* Event dataset is manually compiled; dates are approximate.
+
+---
+
+### `change_point_analysis.py`
+
+Provides the class **`BrentOilChangePointAnalysis`**, responsible for:
+
+* Loading and preparing Brent oil price data.
+* Computing daily **log returns** and thinning datasets for performance.
+* Building a **Bayesian change point model** using PyMC to detect regime shifts in log returns.
+* Analyzing posterior distributions of:
+
+  * Change point index (`tau`)
+  * Mean log returns before (`mu_1`) and after (`mu_2`) the change point
+* Plotting diagnostics for trace convergence, posterior distributions, and price series overlays.
+* Quantifying the **impact of the change point** on mean log returns.
+* Associating detected change points with relevant **historical events**.
+* Exporting results for dashboards or downstream analyses.
+
+**Usage Example:**
+
+```python
+from pathlib import Path
+from change_point_analysis import BrentOilChangePointAnalysis
+
+analysis = BrentOilChangePointAnalysis(
+    csv_path=Path("../data/raw/BrentOilPrices.csv"),
+    events_csv=Path("../data/processed/geopolitical_events.csv")
+)
+
+# Run the full analysis pipeline
+analysis.run_full_analysis()
+
+# Retrieve change point details
+tau_idx, change_date = analysis.get_change_point_date()
+impact = analysis.quantify_impact()
+print(f"Change point at {change_date}, mean log return shifted by {impact['percentage_change']:.2f}%")
+```
+
+**Features:**
+
+* Bayesian modeling with **PyMC** and posterior diagnostics with **ArviZ**.
+* Plots: price series, log returns, posterior distributions, and change point overlays.
+* Automatic detection and interpretation of regime shifts.
+* Optional event association for contextual analysis.
+* Results export for dashboard integration.
+* Logging and error handling for reproducibility.
+
+**Assumptions & Limitations:**
+
+* Input CSV must contain `Date` and `Price` columns.
+* Dataset is thinned to improve performance; very high-frequency data may require adjustment.
+* Priors are narrow for faster convergence; results are sensitive to prior choices.
+* Event dataset is optional; if provided, it must include `event_date`, `event_name`, and `description`.
+
+---
+
+### Common Features Across Modules
+
+* Both modules support **logging**, **plots**, and **CSV output**.
+* Designed for reproducibility and sequential pipelines.
+* Data validation is enforced to catch missing or malformed columns.
+
+---
+
+### Recommended Workflow
+
+1. **Start with `initial_analysis.py`** to perform exploratory data analysis, compute log returns, and compile events.
+2. **Use `change_point_analysis.py`** to detect Bayesian change points, interpret their economic significance, and optionally associate with events.
+3. **Export results** for dashboards or downstream modeling.
 
 ---

@@ -1,6 +1,6 @@
 # `notebooks` — Interactive Analysis Notebooks
 
-This folder contains Jupyter notebooks for **exploring and analyzing Brent oil price data** interactively. The notebooks demonstrate step-by-step workflows using the source code from `src/`.
+This folder contains Jupyter notebooks for **exploring and analyzing Brent oil price data** interactively. These notebooks demonstrate step-by-step workflows using the source code in `src/` and provide reproducible, visual, and interpretable analysis.
 
 ---
 
@@ -8,80 +8,72 @@ This folder contains Jupyter notebooks for **exploring and analyzing Brent oil p
 
 ### `initial_analysis.ipynb`
 
-This notebook provides an **interactive walkthrough** of the Brent oil price analysis pipeline:
+This notebook guides users through the **fundamentals of Brent oil price analysis**:
 
 * **Imports and Setup**
-
-  * Adds the project root to the Python path to import the `BrentOilAnalysisFoundation` class from `src`.
-  * Defines paths for raw data (`data/raw/BrentOilPrices.csv`) and processed outputs (`data/processed/geopolitical_events.csv`).
+  Prepares the environment to use classes from `src/` and defines paths for raw data and processed outputs.
 
 * **Data Loading**
-
-  * Loads and validates Brent oil price data.
-  * Displays basic statistics and data structure.
+  Loads the Brent oil price CSV, validates the columns, and displays summary statistics. This ensures the data is structured correctly for analysis.
 
 * **Time Series Diagnostics**
-
-  * Computes log prices, returns, differences, and rolling volatility.
-  * Plots the price trend and volatility over time.
+  Computes log prices, daily returns, differences, and rolling volatility. Visualizations show how prices and volatility evolve over time, helping identify trends and periods of high market activity.
 
 * **Stationarity Check**
-
-  * Performs Augmented Dickey-Fuller (ADF) test on the log price series.
-  * Visualizes log price with rolling mean and standard deviation to assess stationarity.
+  Performs an **Augmented Dickey-Fuller (ADF) test** on log prices to determine if the series is stationary. Rolling mean and standard deviation plots provide a visual check for stationarity, which is important for statistical modeling.
 
 * **Event Compilation**
+  Manually compiles a dataset of major geopolitical, OPEC, and macroeconomic events. This dataset is saved for use in downstream analysis, enabling contextual interpretation of price changes.
 
-  * Defines a structured dataset of major geopolitical, OPEC, and macroeconomic events.
-  * Displays the events dataset.
-  * Saves the events dataset to a CSV for downstream analysis.
-
----
-
-## Usage
-
-Run the notebook step by step in Jupyter or VSCode:
-
-```python
-# Imports and setup
-from src.initial_analysis import BrentOilAnalysisFoundation
-from pathlib import Path
-
-project_root = Path.cwd().resolve().parent
-brent_data_path = project_root / "data/raw/BrentOilPrices.csv"
-events_output_path = project_root / "data/processed/geopolitical_events.csv"
-
-# Initialize the analysis class
-foundation = BrentOilAnalysisFoundation(
-    brent_data_path=brent_data_path,
-    events_output_path=events_output_path
-)
-
-# Load data
-df = foundation.load_brent_data()
-
-# Analyze time series
-diagnostic_df = foundation.analyze_time_series_properties()
-
-# Check stationarity
-foundation.check_stationarity(diagnostic_df)
-
-# Compile and save events
-events_df = foundation.define_relevant_events()
-foundation.save_events_dataset(events_df)
-```
+**Purpose:**
+This notebook is ideal for **exploratory analysis**, understanding the behavior of Brent oil prices, and preparing data and events for modeling.
 
 ---
 
-## Features
+### `change_point_analysis.ipynb`
 
-* Step-by-step **interactive exploration** of Brent oil price data.
-* Visualizations for:
+This notebook performs a **Bayesian change point analysis** using `BrentOilChangePointAnalysis`:
 
-  * Price trends
-  * Rolling volatility
-  * Stationarity check
-* Integration with source code in `src/` for reusable and maintainable analysis.
-* Exports processed event datasets for further analysis or modeling.
+* **Imports and Setup**
+  Configures the environment to access the change point analysis class and defines the raw data location.
+
+* **Data Preparation**
+  Loads and processes the raw price data, computes **daily log returns**, and thins the dataset for computational efficiency. Visualizations of prices and log returns help identify periods of volatility or abrupt changes.
+
+* **Bayesian Change Point Modeling**
+  Builds a Bayesian model to detect a single structural break in the log returns. The model estimates separate mean returns for periods before and after the change point, while a single volatility parameter is shared. MCMC sampling produces full posterior distributions, allowing uncertainty in the timing and magnitude of the shift to be quantified.
+
+* **Model Diagnostics**
+  Trace plots and posterior densities are examined to ensure proper MCMC convergence and reliable estimates. Overlapping posteriors across chains indicate that the model has thoroughly explored the parameter space.
+
+* **Posterior Analysis**
+  The histogram of the change point shows the most likely dates for the structural shift. Posterior distributions of mean returns reveal subtle changes in daily price movements before and after the change point.
+
+* **Event Association**
+  Optionally associates the detected change point with historical events. For example, a U.S. Senate investigation on **2004-11-16** coincides with the detected shift, providing context for the market behavior.
+
+* **Impact Quantification**
+  Calculates the change in mean daily log returns and expresses it as a percentage. This quantifies the magnitude of the structural shift in economic terms.
+
+* **Results Export**
+  Saves processed price data and change point results for dashboards or further analysis.
+
+**Purpose:**
+This notebook is designed for **probabilistic modeling** of regime shifts in oil prices. It integrates statistical rigor with historical context to interpret market behavior and quantify structural changes.
 
 ---
+
+## Overall Notebook Workflow
+
+1. **Start with `initial_analysis.ipynb`** to explore the data, compute diagnostics, and compile relevant events.
+2. **Use `change_point_analysis.ipynb`** to detect Bayesian change points, analyze uncertainty, and associate shifts with events.
+3. **Export results** for dashboards, further modeling, or reporting.
+
+**Key Features Across Notebooks:**
+
+* Interactive visualizations of prices, returns, volatility, and posterior distributions.
+* Integration with reusable classes in `src/`.
+* End-to-end reproducibility from raw data to event-contextualized results.
+* Quantitative and visual interpretation of market behavior and structural shifts.
+
+
